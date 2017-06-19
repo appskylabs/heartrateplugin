@@ -1,27 +1,33 @@
+//
+//  HeartRatePlugin.m
+//  HeartRateApp
+//
+//  Created by Taylor Korensky on 6/17/17.
+//  Copyright © 2017 CMG Research Ltd. All rights reserved.
+
+
 #import "HeartRatePlugin.h"
 
 #import <Cordova/CDVAvailability.h>
 
+#define MAX_PERIOD 1.5
+#define MIN_PERIOD 0.1
+#define INVALID_ENTRY -100
+
+#define GAIN    1.894427025e+01
+
 @implementation HeartRatePlugin {
-    
+   
     BOOL    TimerBool;
     NSTimer   *timer;
 }
 
+
 - (void)pluginInitialize :(CDVInvokedUrlCommand *)command {
     self.mainCommand = command;
-    self.filter=[[Filter alloc] init];
-    self.pulseDetector=[[PulseDetector alloc] init];
-    [self startPlugin];
-}
-
--(BOOL) startPlugin{
-    
+    [self reset];
     [self startCameraCapture];
-    
-    return YES;
 }
-
 
 // start capturing frames
 -(void) startCameraCapture {
@@ -41,7 +47,7 @@
         [self.camera unlockForConfiguration];
     }
     
-    
+
     // Create a AVCaptureInput with the camera device
     NSError *error=nil;
     
@@ -63,7 +69,7 @@
     
     // configure the pixel format
     videoOutput.videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithUnsignedInt:kCVPixelFormatType_32BGRA], (id)kCVPixelBufferPixelFormatTypeKey, nil];
-    
+
     // and the size of the frames we want - we'll use the smallest frame size available
     [self.session setSessionPreset:AVCaptureSessionPresetLow];
     
@@ -198,11 +204,11 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
         // increment the valid frame count
         self.validFrameCounter++;
         // filter the hue value - the filter is a simple band pass filter that removes any DC component and any high frequency noise
-        float filtered=[self.filter processValue:h];
+        float filtered=[self processValue:h];
         // have we collected enough frames for the filter to settle?
         if(self.validFrameCounter > MIN_FRAMES_FOR_FILTER_TO_SETTLE) {
             // add the new value to the pulse detector
-            [self.pulseDetector addNewValue:filtered atTime:CACurrentMediaTime()];
+            [self addNewValue:filtered atTime:CACurrentMediaTime()];
         }
         
         TimerBool=YES;
@@ -215,7 +221,7 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
         
         self.validFrameCounter = 0;
         // clear the pulse detector - we only really need to do this once, just before we start adding valid samples
-        [self.pulseDetector reset];
+        [self reset];
     }
     
 }
@@ -227,7 +233,7 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
         return 0;
     
     // get the average period of the pulse rate from the pulse detector
-    float avePeriod=[self.pulseDetector getAverage];
+    float avePeriod=[self getAverage];
     if(avePeriod==INVALID_PULSE_PERIOD) {
         // no value available
         return 0;
@@ -239,9 +245,10 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
         self.pulse = 60.0/avePeriod;
         
         NSLog(@"Pulse: %f", self.pulse);
-
+        
         CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[NSString stringWithFormat: @"%f", self.pulse]];
         [self.commandDelegate sendPluginResult:result callbackId:self.mainCommand.callbackId];
+        
         [timer invalidate];
         [self stopCameraCapture];
         
@@ -256,22 +263,151 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
 }
 
 
-/*- (void)echo:(CDVInvokedUrlCommand *)command {
-  NSString* phrase = [command.arguments objectAtIndex:0];
-  NSLog(@"%@", phrase);
+
+#pragma mark Pulse Detectior ********************************************
+
+@synthesize periodStart;
+
+
+- (id) init
+{
+    self = [super init];
+    if (self != nil) {
+        // set everything to invalid
+        [self reset];
+    }
+    return self;
 }
 
-- (void)getDate:(CDVInvokedUrlCommand *)command {
-  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-  NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
-  [dateFormatter setLocale:enUSPOSIXLocale];
-  [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+-(void) reset {
+    
+    for(int i=0; i<MAX_PERIODS_TO_STORE; i++) {
+        periods[i]=INVALID_ENTRY;
+    }
+    for(int i=0; i<AVERAGE_SIZE; i++) {
+        upVals[i]=INVALID_ENTRY;
+        downVals[i]=INVALID_ENTRY;
+    }
+    
+    freq=0.5;
+    periodIndex=0;
+    downValIndex=0;
+    upValIndex=0;
+    
+}
 
-  NSDate *now = [NSDate date];
-  NSString *iso8601String = [dateFormatter stringFromDate:now];
+-(float) addNewValue:(float) newVal atTime:(double) time {
+    // we keep track of the number of values above and below zero
+    
+    if(newVal>0) {
+        upVals[upValIndex]=newVal;
+        upValIndex++;
+        if(upValIndex>=AVERAGE_SIZE) {
+            upValIndex=0;
+        }
+    }
+    
+    
+    if(newVal<0) {
+        downVals[downValIndex]=-newVal;
+        downValIndex++;
+        if(downValIndex>=AVERAGE_SIZE) {
+            downValIndex=0;
+        }
+    }
+    // work out the average value above zero
+    float count=0;
+    float total=0;
+    for(int i=0; i<AVERAGE_SIZE; i++) {
+        if(upVals[i]!=INVALID_ENTRY) {
+            count++;
+            total+=upVals[i];
+        }
+    }
+    
+    float averageUp=total/count;
+    // and the average value below zero
+    count=0;
+    total=0;
+    for(int i=0; i<AVERAGE_SIZE; i++) {
+        if(downVals[i]!=INVALID_ENTRY) {
+            count++;
+            total+=downVals[i];
+        }
+    }
+    float averageDown=total/count;
+    
+    // is the new value a down value?
+    if(newVal<-0.5*averageDown) {
+        wasDown=true;
+    }
+    
+    // is the new value an up value and were we previously in the down state?
+    if(newVal>=0.5*averageUp && wasDown) {
+        wasDown=false;
+        // work out the difference between now and the last time this happenned
+        if(time-periodStart<MAX_PERIOD && time-periodStart>MIN_PERIOD) {
+            
+            periods[periodIndex]=time-periodStart;
+            periodTimes[periodIndex]=time;
+            periodIndex++;
+            if(periodIndex>=MAX_PERIODS_TO_STORE) {
+                periodIndex=0;
+            }
+            
+        }
+        // track when the transition happened
+        periodStart=time;
+    }
+    // return up or down
+    if(newVal<-0.5*averageDown) {
+        return -1;
+    } else if(newVal>0.5*averageUp) {
+        return 1;
+    }
+    return 0;
+}
 
-  CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:iso8601String];
-  [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-}*/
+-(float) getAverage {
+    
+    double time=CACurrentMediaTime();
+    double total=0;
+    double count=0;
+    for(int i=0; i<MAX_PERIODS_TO_STORE; i++) {
+        // only use upto 10 seconds worth of data
+        if(periods[i]!=INVALID_ENTRY  && time-periodTimes[i]<10) {
+            count++;
+            total+=periods[i];
+        }
+    }
+    // do we have enough values?
+    if(count>2) {
+        return total/count;
+    }
+    return INVALID_PULSE_PERIOD;
+}
+
+#pragma mark FILTER ************************************************************
+
+-(float) processValue:(float) value {
+    
+    
+    xv[0] = xv[1]; xv[1] = xv[2]; xv[2] = xv[3]; xv[3] = xv[4]; xv[4] = xv[5]; xv[5] = xv[6]; xv[6] = xv[7]; xv[7] = xv[8]; xv[8] = xv[9]; xv[9] = xv[10];
+    
+    xv[10] = value / GAIN;
+    
+    yv[0] = yv[1]; yv[1] = yv[2]; yv[2] = yv[3]; yv[3] = yv[4]; yv[4] = yv[5]; yv[5] = yv[6]; yv[6] = yv[7]; yv[7] = yv[8]; yv[8] = yv[9]; yv[9] = yv[10];
+    
+    yv[10] =   (xv[10] - xv[0]) + 5 * (xv[2] - xv[8]) + 10 * (xv[6] - xv[4])
+    
+    + ( -0.0000000000 * yv[0]) + (  0.0357796363 * yv[1])
+    + ( -0.1476158522 * yv[2]) + (  0.3992561394 * yv[3])
+    + ( -1.1743136181 * yv[4]) + (  2.4692165842 * yv[5])
+    + ( -3.3820859632 * yv[6]) + (  3.9628972812 * yv[7])
+    + ( -4.3832594900 * yv[8]) + (  3.2101976096 * yv[9]);
+    
+    return yv[10];
+} 
+
 
 @end
