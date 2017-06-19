@@ -30,7 +30,7 @@
     <platform name="ios">
         <js-module src="www/plugin.js" name="plugin">
             <runs/>
-            <clobbers target="HeartRatePlugin" />
+            <clobbers target="navigator.heartrate" />
         </js-module>
         <config-file target="config.xml" parent="/*">
             <feature name="HeartRatePlugin">
