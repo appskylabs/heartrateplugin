@@ -4,8 +4,7 @@
   "cordova": {
     "id": "cordova-plugin-heartrate",
     "platforms": [
-      "android",
-      "ios",
+      "ios"
     ]
   },
   "description": "A plugin for scanning Heart Rate."
