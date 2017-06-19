@@ -24,7 +24,10 @@
 
 
 - (void)pluginInitialize :(CDVInvokedUrlCommand *)command {
+    NSLog(@"command id: %@", command.callbackId);
+    self.mainCommand = [[CVDInvokeUrlCommand alloc] init];
     self.mainCommand = command;
+    
     [self reset];
     [self startCameraCapture];
 }
@@ -32,6 +35,7 @@
 // start capturing frames
 -(void) startCameraCapture {
     
+    NSLog(@"main command id: %@", self.mainCommand.callbackId);
     // Create the AVCapture Session
     self.session = [[AVCaptureSession alloc] init];
     
