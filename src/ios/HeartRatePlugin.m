@@ -25,7 +25,7 @@
 
 - (void)pluginInitialize :(CDVInvokedUrlCommand *)command {
     NSLog(@"command id: %@", command.callbackId);
-    self.mainCommand = [[CVDInvokeUrlCommand alloc] init];
+    self.mainCommand = [[CDVInvokedUrlCommand alloc] init];
     self.mainCommand = command;
     
     [self reset];
