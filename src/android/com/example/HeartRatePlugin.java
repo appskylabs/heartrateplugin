@@ -247,7 +247,7 @@ public class HeartRatePlugin extends CordovaPlugin {
                     int beatsAvg = (beatsArrayAvg / beatsArrayCnt);
                     text.setText(String.valueOf(beatsAvg));
                     beatsPerMinuteValue=String.valueOf(beatsAvg);
-                    PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue);
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
                     context.sendPluginResult(result);
                     makePhoneVibrate();
         
