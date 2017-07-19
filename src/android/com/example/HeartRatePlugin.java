@@ -1,4 +1,35 @@
-/**
+private static final String TAG = "HeartRatePlugin";
+CallbackContext context;
+private static final AtomicBoolean processing = new AtomicBoolean(false);
+
+private static SurfaceView preview = null;
+private static SurfaceHolder previewHolder = null;
+private static Camera camera = null;
+private static View image = null;
+
+private static String beatsPerMinuteValue="";
+private static WakeLock wakeLock = null;
+private static int averageIndex = 0;
+private static final int averageArraySize = 4;
+private static final int[] averageArray = new int[averageArraySize];
+private static Context parentReference = null;
+
+public static enum TYPE {
+GREEN, RED
+};
+
+private static TYPE currentType = TYPE.GREEN;
+
+public static TYPE getCurrent() {
+return currentType;
+}
+
+private static int beatsIndex = 0;
+private static final int beatsArraySize = 3;
+private static final int[] beatsArray = new int[beatsArraySize];
+private static double beats = 0;
+private static long startTime = 0;
+private static Vibrator v ;/**
  */
 package com.example;
 
@@ -40,6 +71,8 @@ import android.view.View;
 
 
 public class HeartRatePlugin extends CordovaPlugin {
+   
+    
     private static final String TAG = "HeartRatePlugin";
     CallbackContext context;
     private static final AtomicBoolean processing = new AtomicBoolean(false);
@@ -74,9 +107,6 @@ public class HeartRatePlugin extends CordovaPlugin {
     private static Vibrator v ;
     
     
-    
-    
-
   public void initialize(CordovaInterface cordova, CordovaWebView webView) {
     super.initialize(cordova, webView);
 
@@ -96,12 +126,12 @@ public class HeartRatePlugin extends CordovaPlugin {
         public void pluginInitialize(){
             
             // setContentView(R.layout.main);
-            v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
-            parentReference=this;
+           // v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
+            //parentReference=this;
             //strSavedDoctorID= HeartRateMonitor.this.getSharedPreferences("app_prefs", MODE_PRIVATE)
             //.getString("doc_id", "---");
             
-            preview = new SurfaceView(this);
+           // preview = new SurfaceView(this);
             
            // LayoutParams lp = new FrameLayout.LayoutParams(120, 200);
             
@@ -117,8 +147,8 @@ public class HeartRatePlugin extends CordovaPlugin {
            // image = findViewById(R.id.image);
 
             
-            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "DoNotDimScreen");
+           // PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+           // wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "DoNotDimScreen");
             //pubnub = new Pubnub(PUBNUB_PUBLISH_KEY, PUBNUB_SUBSCRIBE_KEY);
            // prepareCountDownTimer();
             //configurePubNubClient();
@@ -141,7 +171,7 @@ public class HeartRatePlugin extends CordovaPlugin {
                                                 */
     
                                                public void onResume() {
-            super.onResume();
+            //super.onResume();
             wakeLock.acquire();
             camera = Camera.open();
             startTime = System.currentTimeMillis();
@@ -152,7 +182,7 @@ public class HeartRatePlugin extends CordovaPlugin {
                                                 */
     
                                                public void onPause() {
-            super.onPause();
+           // super.onPause();
             
             wakeLock.release();
             
@@ -260,11 +290,11 @@ public class HeartRatePlugin extends CordovaPlugin {
         };
                                                
                                                
-                                               private static void makePhoneVibrate(){
+        private static void makePhoneVibrate(){
             v.vibrate(500);
         }
                                                
-                                               private static SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
+        private static SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
             
             /**
              * {@inheritDoc}
@@ -339,7 +369,7 @@ public class HeartRatePlugin extends CordovaPlugin {
             .setNegativeButton("Take Another", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
 
-                    prepareCountDownTimer();
+                    //prepareCountDownTimer();
                     dialog.cancel();
                 }
             });
