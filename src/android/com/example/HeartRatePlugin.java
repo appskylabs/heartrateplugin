@@ -1,36 +1,3 @@
-private static final String TAG = "HeartRatePlugin";
-CallbackContext context;
-private static final AtomicBoolean processing = new AtomicBoolean(false);
-
-private static SurfaceView preview = null;
-private static SurfaceHolder previewHolder = null;
-private static Camera camera = null;
-private static View image = null;
-
-private static String beatsPerMinuteValue="";
-private static WakeLock wakeLock = null;
-private static int averageIndex = 0;
-private static final int averageArraySize = 4;
-private static final int[] averageArray = new int[averageArraySize];
-private static Context parentReference = null;
-
-public static enum TYPE {
-GREEN, RED
-};
-
-private static TYPE currentType = TYPE.GREEN;
-
-public static TYPE getCurrent() {
-return currentType;
-}
-
-private static int beatsIndex = 0;
-private static final int beatsArraySize = 3;
-private static final int[] beatsArray = new int[beatsArraySize];
-private static double beats = 0;
-private static long startTime = 0;
-private static Vibrator v ;/**
- */
 package com.example;
 
 import java.text.DateFormat;
