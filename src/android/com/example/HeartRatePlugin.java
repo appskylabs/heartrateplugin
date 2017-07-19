@@ -41,7 +41,7 @@ public class HeartRatePlugin extends CordovaPlugin {
    
     
     private static final String TAG = "HeartRatePlugin";
-    CallbackContext context;
+    private static CallbackContext context;
     private static final AtomicBoolean processing = new AtomicBoolean(false);
     
     private static SurfaceView preview = null;
@@ -98,7 +98,7 @@ public class HeartRatePlugin extends CordovaPlugin {
             //strSavedDoctorID= HeartRateMonitor.this.getSharedPreferences("app_prefs", MODE_PRIVATE)
             //.getString("doc_id", "---");
             
-           // preview = new SurfaceView(this);
+            preview = new SurfaceView(this);
             
            // LayoutParams lp = new FrameLayout.LayoutParams(120, 200);
             
