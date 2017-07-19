@@ -98,7 +98,7 @@ public class HeartRatePlugin extends CordovaPlugin {
             //strSavedDoctorID= HeartRateMonitor.this.getSharedPreferences("app_prefs", MODE_PRIVATE)
             //.getString("doc_id", "---");
             
-            preview = new SurfaceView(this);
+            preview = new SurfaceView();
             
            // LayoutParams lp = new FrameLayout.LayoutParams(120, 200);
             
@@ -110,6 +110,8 @@ public class HeartRatePlugin extends CordovaPlugin {
             previewHolder.addCallback(surfaceCallback);
             previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
             previewHolder.setSizeFromLayout();
+            
+            LOG.d(TAG, "We are entering execute");
             
            // image = findViewById(R.id.image);
 
