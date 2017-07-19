@@ -98,7 +98,7 @@ public class HeartRatePlugin extends CordovaPlugin {
             //strSavedDoctorID= HeartRateMonitor.this.getSharedPreferences("app_prefs", MODE_PRIVATE)
             //.getString("doc_id", "---");
             
-            preview = new SurfaceView();
+           // preview = new SurfaceView();
             
            // LayoutParams lp = new FrameLayout.LayoutParams(120, 200);
             
@@ -111,7 +111,7 @@ public class HeartRatePlugin extends CordovaPlugin {
             previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
             previewHolder.setSizeFromLayout();
             
-            LOG.d(TAG, "We are entering execute");
+            Log.d(TAG, "We are entering execute");
             
            // image = findViewById(R.id.image);
 
@@ -246,6 +246,9 @@ public class HeartRatePlugin extends CordovaPlugin {
                     int beatsAvg = (beatsArrayAvg / beatsArrayCnt);
 
                     beatsPerMinuteValue=String.valueOf(beatsAvg);
+                    
+                    Log.d(TAG, "We are entering execute" + beatsPerMinuteValue);
+
                     PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
                     context.sendPluginResult(result);
                     makePhoneVibrate();
