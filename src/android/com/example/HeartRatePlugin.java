@@ -103,9 +103,9 @@ public class HeartRatePlugin extends CordovaPlugin {
             
             preview = new SurfaceView(this);
             
-            LayoutParams lp = new FrameLayout.LayoutParams(120, 200);
+           // LayoutParams lp = new FrameLayout.LayoutParams(120, 200);
             
-            preview.setLayoutParams(lp);
+           // preview.setLayoutParams(lp);
             // setContentView(view);
             // preview = (SurfaceView) findViewById(R.id.preview);
             previewHolder = preview.getHolder();
@@ -114,13 +114,13 @@ public class HeartRatePlugin extends CordovaPlugin {
             previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
             previewHolder.setSizeFromLayout();
             
-            image = findViewById(R.id.image);
-            //text = (TextView) findViewById(R.id.text);
+           // image = findViewById(R.id.image);
+
             
             PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
             wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "DoNotDimScreen");
             //pubnub = new Pubnub(PUBNUB_PUBLISH_KEY, PUBNUB_SUBSCRIBE_KEY);
-            prepareCountDownTimer();
+           // prepareCountDownTimer();
             //configurePubNubClient();
             //pubnubSubscribe();
             
@@ -139,7 +139,7 @@ public class HeartRatePlugin extends CordovaPlugin {
                                                /**
                                                 * {@inheritDoc}
                                                 */
-                                               @Override
+    
                                                public void onResume() {
             super.onResume();
             wakeLock.acquire();
@@ -150,7 +150,7 @@ public class HeartRatePlugin extends CordovaPlugin {
                                                /**
                                                 * {@inheritDoc}
                                                 */
-                                               @Override
+    
                                                public void onPause() {
             super.onPause();
             
@@ -159,7 +159,7 @@ public class HeartRatePlugin extends CordovaPlugin {
             camera.setPreviewCallback(null);
             camera.stopPreview();
             camera.release();
-            text.setText("---");
+
             camera = null;
         }
                                                
@@ -179,7 +179,7 @@ public class HeartRatePlugin extends CordovaPlugin {
                 int width = size.width;
                 int height = size.height;
                 
-                int imgAvg = ImageProcessing.decodeYUV420SPtoRedAvg(data.clone(), height, width);
+                int imgAvg = decodeYUV420SPtoRedAvg(data.clone(), height, width);
                 // Log.i(TAG, "imgAvg="+imgAvg);
                 if (imgAvg == 0 || imgAvg == 255) {
                     processing.set(false);
@@ -214,7 +214,7 @@ public class HeartRatePlugin extends CordovaPlugin {
                 // Transitioned from one state to another to the same
                 if (newType != currentType) {
                     currentType = newType;
-                    image.postInvalidate();
+                  //  image.postInvalidate();
                 }
                 
                 long endTime = System.currentTimeMillis();
@@ -245,7 +245,7 @@ public class HeartRatePlugin extends CordovaPlugin {
                         }
                     }
                     int beatsAvg = (beatsArrayAvg / beatsArrayCnt);
-                    text.setText(String.valueOf(beatsAvg));
+
                     beatsPerMinuteValue=String.valueOf(beatsAvg);
                     PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
                     context.sendPluginResult(result);
@@ -338,7 +338,7 @@ public class HeartRatePlugin extends CordovaPlugin {
             })
             .setNegativeButton("Take Another", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    text.setText("---");
+
                     prepareCountDownTimer();
                     dialog.cancel();
                 }
