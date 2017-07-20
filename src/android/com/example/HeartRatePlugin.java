@@ -75,6 +75,8 @@ public class HeartRatePlugin extends CordovaPlugin {
     private static long startTime = 0;
   //  private static Vibrator v ;
     
+    protected final static String[] permissions = { Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE };
+    
     
   public void initialize(CordovaInterface cordova, CordovaWebView webView) {
     super.initialize(cordova, webView);
@@ -130,7 +132,13 @@ public class HeartRatePlugin extends CordovaPlugin {
            // prepareCountDownTimer();
             //configurePubNubClient();
             //pubnubSubscribe();
-            camera = null;
+            
+            boolean takePicturePermission = PermissionHelper.hasPermission(this, Manifest.permission.CAMERA);
+            if(!takePicturePermission){
+                  PermissionHelper.requestPermission(this, TAKE_PIC_SEC, Manifest.permission.CAMERA);
+            }
+            
+            camera.startPreview();
             camera = Camera.open(0);
             
             Camera.Parameters parameters = camera.getParameters();
@@ -276,13 +284,13 @@ public class HeartRatePlugin extends CordovaPlugin {
             PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
             context.sendPluginResult(result);
            // makePhoneVibrate();
-            
+            camera.release();
            // showReadingCompleteDialog();
             startTime = System.currentTimeMillis();
             beats = 0;
         }
-        processing.set(false);
-        
+    processing.set(false);
+    
         
     }
 };
