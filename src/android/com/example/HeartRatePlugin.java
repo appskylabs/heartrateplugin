@@ -49,7 +49,7 @@ public class HeartRatePlugin extends CordovaPlugin {
     private static Camera camera = null;
     private static View image = null;*/
     
-    private static Camera camera = null;
+    Camera camera;
 
     private static String beatsPerMinuteValue="";
    // private static WakeLock wakeLock = null;
@@ -80,6 +80,7 @@ public class HeartRatePlugin extends CordovaPlugin {
     super.initialize(cordova, webView);
 
     Log.d(TAG, "Initializing MyCordovaPlugin");
+      
   }
 
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -88,7 +89,7 @@ public class HeartRatePlugin extends CordovaPlugin {
     if(action.equals("pluginInitialize")) {
     
         
-        camera = Camera.open(0);
+       
         pluginInitialize();
         
        // PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
@@ -129,7 +130,7 @@ public class HeartRatePlugin extends CordovaPlugin {
            // prepareCountDownTimer();
             //configurePubNubClient();
             //pubnubSubscribe();
-            
+            camera = Camera.open(0);
             
             Camera.Parameters parameters = camera.getParameters();
             parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
@@ -184,7 +185,7 @@ public class HeartRatePlugin extends CordovaPlugin {
     
     */
     
-    private static PictureCallback pictureCallback = new PictureCallback() {
+    PictureCallback pictureCallback = new PictureCallback() {
     
     
     @Override
