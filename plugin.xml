@@ -10,6 +10,17 @@
 
     <!-- android -->
     <platform name="android">
+        
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.CAMERA"/>
+            <uses-permission
+            android:name="android.permission.FLASHLIGHT"
+            android:permissionGroup="android.permission-group.HARDWARE_CONTROLS"
+            android:protectionLevel="normal" />
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+        </config-file>
+
+        
       <js-module src="www/plugin.js" name="plugin">
         <runs/>
 
@@ -17,16 +28,12 @@
         <clobbers target="HeartRatePlugin" />
       </js-module>
       
-      <config-file target="AndroidManifest.xml" parent="/*">
-            <uses-permission android:name="android.permission.CAMERA"/>
-      </config-file>
-
-
       <config-file target="res/xml/config.xml" parent="/*">
         <feature name="HeartRatePlugin">
           <param name="android-package" value="com.example.HeartRatePlugin" />
           <param name="onload" value="true" />
         </feature>
+
       </config-file>
 
       <source-file src="src/android/com/example/HeartRatePlugin.java" target-dir="src/com/example/" />

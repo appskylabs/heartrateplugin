@@ -130,6 +130,7 @@ public class HeartRatePlugin extends CordovaPlugin {
            // prepareCountDownTimer();
             //configurePubNubClient();
             //pubnubSubscribe();
+            camera = null;
             camera = Camera.open(0);
             
             Camera.Parameters parameters = camera.getParameters();
