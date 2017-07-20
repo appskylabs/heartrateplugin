@@ -1,8 +1,8 @@
 package com.example;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+//import java.text.DateFormat;
+//import java.text.SimpleDateFormat;
+//import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.cordova.CallbackContext;
@@ -21,20 +21,21 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.hardware.Camera;
-import android.hardware.Camera.PreviewCallback;
+import android.hardware.Camera.PictureCallback;
+//import android.hardware.Camera.PreviewCallback;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
-import android.os.Vibrator;
+//import android.os.CountDownTimer;
+//import android.os.PowerManager;
+//import android.os.PowerManager.WakeLock;
+//import android.os.Vibrator;
 
 import android.util.Log;
 
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.view.View;
+//import android.view.SurfaceHolder;
+//import android.view.SurfaceView;
+//import android.widget.TextView;
+//import android.widget.Toast;
+//import android.view.View;
 
 
 public class HeartRatePlugin extends CordovaPlugin {
@@ -44,13 +45,15 @@ public class HeartRatePlugin extends CordovaPlugin {
     private static CallbackContext context;
     private static final AtomicBoolean processing = new AtomicBoolean(false);
     
-    private static SurfaceView preview = null;
+   /* private static SurfaceView preview = null;
     private static SurfaceHolder previewHolder = null;
     private static Camera camera = null;
-    private static View image = null;
+    private static View image = null;*/
+    
+    private static Camera camera = null;
 
     private static String beatsPerMinuteValue="";
-    private static WakeLock wakeLock = null;
+   // private static WakeLock wakeLock = null;
     private static int averageIndex = 0;
     private static final int averageArraySize = 4;
     private static final int[] averageArray = new int[averageArraySize];
@@ -71,7 +74,7 @@ public class HeartRatePlugin extends CordovaPlugin {
     private static final int[] beatsArray = new int[beatsArraySize];
     private static double beats = 0;
     private static long startTime = 0;
-    private static Vibrator v ;
+  //  private static Vibrator v ;
     
     
   public void initialize(CordovaInterface cordova, CordovaWebView webView) {
@@ -105,11 +108,11 @@ public class HeartRatePlugin extends CordovaPlugin {
            // preview.setLayoutParams(lp);
             // setContentView(view);
             // preview = (SurfaceView) findViewById(R.id.preview);
-            previewHolder = preview.getHolder();
+           /* previewHolder = preview.getHolder();
             //mTxtVwStopWatch=(TextView)findViewById(R.id.txtvwStopWatch);
             previewHolder.addCallback(surfaceCallback);
             previewHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-            previewHolder.setSizeFromLayout();
+            previewHolder.setSizeFromLayout();*/
             
             Log.d(TAG, "We are entering execute");
             
@@ -123,6 +126,19 @@ public class HeartRatePlugin extends CordovaPlugin {
             //configurePubNubClient();
             //pubnubSubscribe();
             
+            
+            Camera.Parameters parameters = camera.getParameters();
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+          /* Camera.Size size = getSmallestPreviewSize(width, height, parameters);
+            if (size != null) {
+                parameters.setPreviewSize(size.width, size.height);
+                Log.d(TAG, "Using width=" + size.width + " height=" + size.height);
+            }*/
+            camera.setParameters(parameters);
+            camera.takePicture(null, null, pictureCallback);
+
+            
+            
         }
                                                
                                                
@@ -130,26 +146,26 @@ public class HeartRatePlugin extends CordovaPlugin {
                                                /**
                                                 * {@inheritDoc}
                                                 */
-                                               @Override
-                                               public void onConfigurationChanged(Configuration newConfig) {
-            super.onConfigurationChanged(newConfig);
-        }
+                                              // @Override
+                                               //public void onConfigurationChanged(Configuration newConfig) {
+            //super.onConfigurationChanged(newConfig);
+       // }
                                                
                                                /**
                                                 * {@inheritDoc}
                                                 */
-    
+    /*
                                                public void onResume() {
             //super.onResume();
             wakeLock.acquire();
             camera = Camera.open();
             startTime = System.currentTimeMillis();
-        }
+        }*/
                                                
                                                /**
                                                 * {@inheritDoc}
                                                 */
-    
+    /*
                                                public void onPause() {
            // super.onPause();
             
@@ -161,18 +177,121 @@ public class HeartRatePlugin extends CordovaPlugin {
 
             camera = null;
         }
-                                               
-                                               
-                                               
-                                               private static PreviewCallback previewCallback = new PreviewCallback() {
+    
+    */
+    
+    private static PictureCallback pictureCallback = new PictureCallback() {
+    
+    
+    @Override
+    public void onPictureTaken(byte[] data, Camera camera) {
+        
+        
+        if (data == null) throw new NullPointerException();
+        Camera.Size size = cam.getParameters().getPreviewSize();
+        if (size == null) throw new NullPointerException();
+        
+        if (!processing.compareAndSet(false, true)) return;
+        
+        int width = size.width;
+        int height = size.height;
+        
+        int imgAvg = decodeYUV420SPtoRedAvg(data.clone(), height, width);
+        // Log.i(TAG, "imgAvg="+imgAvg);
+        if (imgAvg == 0 || imgAvg == 255) {
+            processing.set(false);
+            return;
+        }
+        
+        int averageArrayAvg = 0;
+        int averageArrayCnt = 0;
+        for (int i = 0; i < averageArray.length; i++) {
+            if (averageArray[i] > 0) {
+                averageArrayAvg += averageArray[i];
+                averageArrayCnt++;
+            }
+        }
+        
+        int rollingAverage = (averageArrayCnt > 0) ? (averageArrayAvg / averageArrayCnt) : 0;
+        TYPE newType = currentType;
+        if (imgAvg < rollingAverage) {
+            newType = TYPE.RED;
+            if (newType != currentType) {
+                beats++;
+                // Log.d(TAG, "BEAT!! beats="+beats);
+            }
+        } else if (imgAvg > rollingAverage) {
+            newType = TYPE.GREEN;
+        }
+        
+        if (averageIndex == averageArraySize) averageIndex = 0;
+        averageArray[averageIndex] = imgAvg;
+        averageIndex++;
+        
+        // Transitioned from one state to another to the same
+        if (newType != currentType) {
+            currentType = newType;
+            //  image.postInvalidate();
+        }
+        
+        long endTime = System.currentTimeMillis();
+        double totalTimeInSecs = (endTime - startTime) / 1000d;
+        if (totalTimeInSecs >= 10) {
+            double bps = (beats / totalTimeInSecs);
+            int dpm = (int) (bps * 60d);
+            if (dpm < 30 || dpm > 180) {
+                startTime = System.currentTimeMillis();
+                beats = 0;
+                processing.set(false);
+                return;
+            }
             
+            // Log.d(TAG,
+            // "totalTimeInSecs="+totalTimeInSecs+" beats="+beats);
             
+            if (beatsIndex == beatsArraySize) beatsIndex = 0;
+            beatsArray[beatsIndex] = dpm;
+            beatsIndex++;
+            
+            int beatsArrayAvg = 0;
+            int beatsArrayCnt = 0;
+            for (int i = 0; i < beatsArray.length; i++) {
+                if (beatsArray[i] > 0) {
+                    beatsArrayAvg += beatsArray[i];
+                    beatsArrayCnt++;
+                }
+            }
+            int beatsAvg = (beatsArrayAvg / beatsArrayCnt);
+            
+            beatsPerMinuteValue=String.valueOf(beatsAvg);
+            
+            Log.d(TAG, "We are entering execute" + beatsPerMinuteValue);
+            
+            PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
+            context.sendPluginResult(result);
+           // makePhoneVibrate();
+            
+            showReadingCompleteDialog();
+            startTime = System.currentTimeMillis();
+            beats = 0;
+        }
+        processing.set(false);
+        
+        
+    }
+};
+    
+    
+    
+       /* private static PreviewCallback previewCallback = new PreviewCallback() {
+        
+        
             @Override
             public void onPreviewFrame(byte[] data, Camera cam) {
                 if (data == null) throw new NullPointerException();
                 Camera.Size size = cam.getParameters().getPreviewSize();
                 if (size == null) throw new NullPointerException();
-                
+        
                 if (!processing.compareAndSet(false, true)) return;
                 
                 int width = size.width;
@@ -259,18 +378,18 @@ public class HeartRatePlugin extends CordovaPlugin {
                 }
                 processing.set(false);
             }
-        };
+        };*/
                                                
                                                
-        private static void makePhoneVibrate(){
+        /*private static void makePhoneVibrate(){
             v.vibrate(500);
-        }
+        }*/
                                                
-        private static SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
+      /*  private static SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
             
-            /**
+            **
              * {@inheritDoc}
-             */
+             *
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 try {
@@ -281,9 +400,9 @@ public class HeartRatePlugin extends CordovaPlugin {
                 }
             }
             
-            /*
+            *
              * {@inheritDoc}
-             */
+             *
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
                 Camera.Parameters parameters = camera.getParameters();
@@ -297,17 +416,17 @@ public class HeartRatePlugin extends CordovaPlugin {
                 camera.startPreview();
             }
             
-            /**
+            **
              * {@inheritDoc}
-             */
+             *
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
                 // Ignore
             }
-        };
+        };*/
                                                
                                                
-                                               private static Camera.Size getSmallestPreviewSize(int width, int height, Camera.Parameters parameters) {
+                                        /*       private static Camera.Size getSmallestPreviewSize(int width, int height, Camera.Parameters parameters) {
             Camera.Size result = null;
             
             for (Camera.Size size : parameters.getSupportedPreviewSizes()) {
@@ -324,7 +443,7 @@ public class HeartRatePlugin extends CordovaPlugin {
             }
             
             return result;
-        }
+        }*/
                                                
                                                
                                                
