@@ -144,7 +144,7 @@ public class HeartRatePlugin extends CordovaPlugin {
             }
             
             camera.startPreview();
-            camera.previewCallback(null);
+     
             camera = Camera.open(0);
             
             Camera.Parameters parameters = camera.getParameters();
