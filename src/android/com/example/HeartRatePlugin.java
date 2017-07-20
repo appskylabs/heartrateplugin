@@ -87,6 +87,8 @@ public class HeartRatePlugin extends CordovaPlugin {
     context = callbackContext;
     if(action.equals("pluginInitialize")) {
     
+        
+        camera = Camera.open(0);
         pluginInitialize();
         
        // PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
