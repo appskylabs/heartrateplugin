@@ -188,13 +188,13 @@ public class HeartRatePlugin extends CordovaPlugin {
         
         
         if (data == null) throw new NullPointerException();
-        Camera.Size size = cam.getParameters().getPreviewSize();
-        if (size == null) throw new NullPointerException();
+       // Camera.Size size = cam.getParameters().getPreviewSize();
+        //if (size == null) throw new NullPointerException();
         
         if (!processing.compareAndSet(false, true)) return;
         
-        int width = size.width;
-        int height = size.height;
+        int width = 320;
+        int height = 640;
         
         int imgAvg = decodeYUV420SPtoRedAvg(data.clone(), height, width);
         // Log.i(TAG, "imgAvg="+imgAvg);
