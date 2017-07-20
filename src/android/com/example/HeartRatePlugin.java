@@ -60,6 +60,8 @@ public class HeartRatePlugin extends CordovaPlugin {
     private static final int averageArraySize = 4;
     private static final int[] averageArray = new int[averageArraySize];
    // private static Context parentReference = null;
+        public static final int TAKE_PIC_SEC = 0;
+    
     
     public static enum TYPE {
         GREEN, RED
@@ -141,7 +143,7 @@ public class HeartRatePlugin extends CordovaPlugin {
                   PermissionHelper.requestPermission(this, TAKE_PIC_SEC, Manifest.permission.CAMERA);
             }
             
-            camera.startPreview();
+           // camera.startPreview();
             camera = Camera.open(0);
             
             Camera.Parameters parameters = camera.getParameters();
