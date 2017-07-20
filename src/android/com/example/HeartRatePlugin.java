@@ -143,9 +143,9 @@ public class HeartRatePlugin extends CordovaPlugin {
                   PermissionHelper.requestPermission(this, TAKE_PIC_SEC, Manifest.permission.CAMERA);
             }
             
-            camera.startPreview();
-     
+            releaseCamera();
             camera = Camera.open(0);
+        
             
             Camera.Parameters parameters = camera.getParameters();
             parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
@@ -155,6 +155,8 @@ public class HeartRatePlugin extends CordovaPlugin {
                 Log.d(TAG, "Using width=" + size.width + " height=" + size.height);
             }*/
             camera.setParameters(parameters);
+            
+            camera.startPreview();
             camera.takePicture(null, null, pictureCallback);
 
             
@@ -199,6 +201,14 @@ public class HeartRatePlugin extends CordovaPlugin {
         }
     
     */
+    
+    private void releaseCamera() {
+        if (camera != null) {
+            camera.stopPreview();
+            camera.release();
+            camera = null;
+        }
+    }
     
     PictureCallback pictureCallback = new PictureCallback() {
     
