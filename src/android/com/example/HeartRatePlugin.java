@@ -143,7 +143,8 @@ public class HeartRatePlugin extends CordovaPlugin {
                   PermissionHelper.requestPermission(this, TAKE_PIC_SEC, Manifest.permission.CAMERA);
             }
             
-           // camera.startPreview();
+            camera.startPreview();
+            camera.previewCallback(null);
             camera = Camera.open(0);
             
             Camera.Parameters parameters = camera.getParameters();
