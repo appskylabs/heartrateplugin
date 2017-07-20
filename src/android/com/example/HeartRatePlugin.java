@@ -16,7 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 //import android.app.Activity;
-import android.app.AlertDialog;
+//import android.app.AlertDialog;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 //import android.hardware.Camera.PreviewCallback;
@@ -89,8 +89,8 @@ public class HeartRatePlugin extends CordovaPlugin {
     
         pluginInitialize();
         
-        PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
-        context.sendPluginResult(result);
+       // PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
+       // context.sendPluginResult(result);
     }
     return true;
   }
@@ -449,7 +449,7 @@ public class HeartRatePlugin extends CordovaPlugin {
                                                
                                                
                                                
-        private static void showReadingCompleteDialog(){
+      /*  private static void showReadingCompleteDialog(){
             AlertDialog.Builder builder = new AlertDialog.Builder(parentReference);
             builder.setTitle("PubNub-HeartRate");
             builder.setMessage("Reading taken Succesfully at- "+beatsPerMinuteValue+" beats per minute.")
@@ -468,7 +468,7 @@ public class HeartRatePlugin extends CordovaPlugin {
             });
             AlertDialog alert = builder.create();
             alert.show();
-        }
+        }*/
                                                
                                                
                                                
