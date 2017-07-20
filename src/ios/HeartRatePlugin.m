@@ -253,11 +253,11 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
         [timer invalidate];
         [self stopCameraCapture];
         
-        NSString *result = nil;
+        NSString *string = nil;
         
-        result = [NSString stringWithFormat: @"%f", self.pulse];
+        string = [NSString stringWithFormat: @"%f", self.pulse];
         
-        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:result];
+        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:string];
         [self.commandDelegate sendPluginResult:result callbackId:self.mainCommand.callbackId];
         
         //delegate goes here
