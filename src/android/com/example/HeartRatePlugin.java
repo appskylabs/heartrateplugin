@@ -15,11 +15,8 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import android.app.Activity;
+//import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.res.Configuration;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 //import android.hardware.Camera.PreviewCallback;
@@ -30,6 +27,8 @@ import android.os.Bundle;
 //import android.os.Vibrator;
 
 import android.util.Log;
+
+//import javax.security.auth.callback.Callback;
 
 //import android.view.SurfaceHolder;
 //import android.view.SurfaceView;
@@ -57,7 +56,7 @@ public class HeartRatePlugin extends CordovaPlugin {
     private static int averageIndex = 0;
     private static final int averageArraySize = 4;
     private static final int[] averageArray = new int[averageArraySize];
-    private static Context parentReference = null;
+   // private static Context parentReference = null;
     
     public static enum TYPE {
         GREEN, RED
@@ -89,6 +88,9 @@ public class HeartRatePlugin extends CordovaPlugin {
     if(action.equals("pluginInitialize")) {
     
         pluginInitialize();
+        
+        PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
+        context.sendPluginResult(result);
     }
     return true;
   }
@@ -271,7 +273,7 @@ public class HeartRatePlugin extends CordovaPlugin {
             context.sendPluginResult(result);
            // makePhoneVibrate();
             
-            showReadingCompleteDialog();
+           // showReadingCompleteDialog();
             startTime = System.currentTimeMillis();
             beats = 0;
         }
@@ -447,7 +449,7 @@ public class HeartRatePlugin extends CordovaPlugin {
                                                
                                                
                                                
-            private static void showReadingCompleteDialog(){
+        private static void showReadingCompleteDialog(){
             AlertDialog.Builder builder = new AlertDialog.Builder(parentReference);
             builder.setTitle("PubNub-HeartRate");
             builder.setMessage("Reading taken Succesfully at- "+beatsPerMinuteValue+" beats per minute.")
