@@ -14,6 +14,9 @@ import org.apache.cordova.PluginResult.Status;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
+import android.content.pm.PackageManager;
+import org.apache.cordova.PermissionHelper;
+import android.Manifest;
 
 //import android.app.Activity;
 //import android.app.AlertDialog;
