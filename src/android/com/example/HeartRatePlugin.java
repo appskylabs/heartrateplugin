@@ -94,16 +94,34 @@ public class HeartRatePlugin extends CordovaPlugin {
       
     context = callbackContext;
     if(action.equals("pluginInitialize")) {
-    
         
-       
-        pluginInitialize();
+        boolean takePicturePermission = PermissionHelper.hasPermission(this, Manifest.permission.CAMERA);
+        if(!takePicturePermission){
+            PermissionHelper.requestPermission(this, TAKE_PIC_SEC, Manifest.permission.CAMERA);
+        }
+        else{
+
+            Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+            startActivityForResult(intent, 0);
+
         
-        PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
-        context.sendPluginResult(result);
+            PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
+            context.sendPluginResult(result);
+        }
     }
     return true;
   }
+    
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK && requestCode == 0) {
+            //String result = data.toURI();
+            // ...
+            Log.d(TAG, "Got Result from Camera with data string: " + data.toURI());
+            PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
+            context.sendPluginResult(result);
+        }
+    }
 
 
 }
