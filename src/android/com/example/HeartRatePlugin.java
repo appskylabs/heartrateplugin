@@ -17,6 +17,7 @@ import org.json.JSONException;
 import android.content.pm.PackageManager;
 import org.apache.cordova.PermissionHelper;
 import android.Manifest;
+import android.net.Uri;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -103,11 +104,11 @@ public class HeartRatePlugin extends CordovaPlugin {
         else{
 
             Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-            startActivityForResult(intent, 0);
+            cordova.getActivity().startActivityForResult(intent, 0);
 
         
-            PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
-            context.sendPluginResult(result);
+           /* PluginResult result = new PluginResult(PluginResult.Status.OK, (beatsPerMinuteValue));
+            context.sendPluginResult(result);*/
         }
     }
     return true;
