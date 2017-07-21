@@ -18,7 +18,8 @@ import android.content.pm.PackageManager;
 import org.apache.cordova.PermissionHelper;
 import android.Manifest;
 
-//import android.app.Activity;
+import android.app.Activity;
+import android.content.Intent;
 //import android.app.AlertDialog;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
