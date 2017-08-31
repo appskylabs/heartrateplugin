@@ -10,24 +10,31 @@
 
     <!-- android -->
     <platform name="android">
-        
-        <config-file target="AndroidManifest.xml" parent="/*">
+
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <uses-permission android:name="android.permission.CAMERA"/>
-            <uses-permission
-            android:name="android.permission.FLASHLIGHT"
+            <uses-permission android:name="android.permission.FLASHLIGHT"
             android:permissionGroup="android.permission-group.HARDWARE_CONTROLS"
             android:protectionLevel="normal" />
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-        </config-file>
 
-        
+            <uses-feature android:name="android.hardware.camera" />
+            <uses-feature android:name="android.hardware.camera.flash" />
+
+            <uses-permission android:name="android.permission.VIBRATE" />
+            <activity android:name="com.example.HeartRateMonitor"></activity>
+        </config-file>
+        <source-file src="src/android/main.xml" target-dir="res/layout"/>
+        <source-file src="src/android/com/example/HeartRateMonitor.java" target-dir="src/com/example/" />
+        <source-file src="src/android/com/example/ImageProcessing.java" target-dir="src/com/example/" />
+
       <js-module src="www/plugin.js" name="plugin">
         <runs/>
 
         <!-- This is the window variable name you want, like window.MyCordovaPlugin -->
         <clobbers target="HeartRatePlugin" />
       </js-module>
-      
+
       <config-file target="res/xml/config.xml" parent="/*">
         <feature name="HeartRatePlugin">
           <param name="android-package" value="com.example.HeartRatePlugin" />
@@ -53,11 +60,11 @@
 
         <header-file src="src/ios/HeartRatePlugin.h" />
         <source-file src="src/ios/HeartRatePlugin.m" />
-        
+
         <preference name="CAMERA_USAGE_DESCRIPTION" default="We will use the camera to capture the heart rate." />
         <config-file target="*-Info.plist" parent="NSCameraUsageDescription">
             <string>$CAMERA_USAGE_DESCRIPTION</string>
         </config-file>
-        
+
     </platform>
 </plugin>
