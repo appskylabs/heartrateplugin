@@ -36,6 +36,14 @@ public class HeartRatePlugin extends CordovaPlugin {
   public void initialize(CordovaInterface cordova, CordovaWebView webView) {
     super.initialize(cordova, webView);
     Log.d(TAG, "Initializing MyCordovaPlugin");
+      if (ContextCompat.checkSelfPermission(cordova.getActivity(),
+                                            Manifest.permission.CAMERA)
+          != PackageManager.PERMISSION_GRANTED) {
+          
+          ActivityCompat.requestPermissions(cordova.getActivity(),
+                                            new String[]{Manifest.permission.CAMERA},
+                                            101);
+      }
   }
 
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
