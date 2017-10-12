@@ -261,8 +261,8 @@ public class HeartRateMonitor extends Activity {
                 int beatsAvg = (beatsArrayAvg / beatsArrayCnt);
                 text.setText(String.valueOf(beatsAvg));
                 beatsPerMinuteValue=String.valueOf(beatsAvg);
-                makePhoneVibrate();
-                dispatchPubNubEvent(String.valueOf(beatsAvg));
+                //makePhoneVibrate();
+                //dispatchPubNubEvent(String.valueOf(beatsAvg));
                 showReadingCompleteDialog();
                 startTime = System.currentTimeMillis();
                 beats = 0;

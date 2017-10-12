@@ -81,17 +81,20 @@ public void onRequestPermissionResult(int requestCode, String[] permissions,
 
 
   private void openNewActivity() {
-      PluginResult r = new PluginResult(PluginResult.Status.NO_RESULT);
-      r.setKeepCallback(true);
-      callbackContext.sendPluginResult(r);
+
 
       Intent i = new Intent(this.cordova.getActivity(), HeartRateMonitor.class);
-      i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      //i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
       cordova.startActivityForResult(this,i,GET_HEARTBEAT_CODE);
+
+      /*PluginResult r = new PluginResult(PluginResult.Status.NO_RESULT);
+      r.setKeepCallback(true);
+      callbackContext.sendPluginResult(r);*/
     }
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+
       if(requestCode == GET_HEARTBEAT_CODE) {
           if(data != null) {
             String heartbeat = data.getStringExtra("heartbeat");
