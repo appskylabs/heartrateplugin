@@ -44,7 +44,7 @@ typedef NS_ENUM(NSUInteger, CURRENT_STATE) {
     float average;
     
     bool wasDown;
-
+    
     float xv[NZEROS+1], yv[NPOLES+1];
 }
 
@@ -54,6 +54,7 @@ typedef NS_ENUM(NSUInteger, CURRENT_STATE) {
 @property(nonatomic, assign) CURRENT_STATE currentState;
 @property(nonatomic, assign) int validFrameCounter;
 @property (nonatomic) float pulse;
+@property (strong, nonatomic) NSTimer *timer;
 
 // The hooks for our plugin commands
 - (void)pluginInitialize :(CDVInvokedUrlCommand *)command;

@@ -17,9 +17,9 @@
 #define GAIN    1.894427025e+01
 
 @implementation HeartRatePlugin {
-   
+    
     BOOL    TimerBool;
-    NSTimer   *timer;
+    //NSTimer   *timer;
 }
 
 
@@ -42,16 +42,9 @@
     // Get the default camera device
     self.camera = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     
-    // switch on torch mode - can't detect the pulse without it
-    if([self.camera isTorchModeSupported:AVCaptureTorchModeOn]) {
-        [self.camera lockForConfiguration:nil];
-        self.camera.torchMode=AVCaptureTorchModeOn;
-        // set the minimum acceptable frame rate to 10 fps
-        [self.camera setActiveVideoMinFrameDuration:CMTimeMake(1, 10)];
-        [self.camera unlockForConfiguration];
-    }
     
-
+    
+    
     // Create a AVCaptureInput with the camera device
     NSError *error=nil;
     
@@ -73,16 +66,29 @@
     
     // configure the pixel format
     videoOutput.videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithUnsignedInt:kCVPixelFormatType_32BGRA], (id)kCVPixelBufferPixelFormatTypeKey, nil];
-
+    
     // and the size of the frames we want - we'll use the smallest frame size available
     [self.session setSessionPreset:AVCaptureSessionPresetLow];
+    
+    
     
     // Add the input and output
     [self.session addInput:cameraInput];
     [self.session addOutput:videoOutput];
     
+    
     // Start the session
+    // [self.session performSelectorInBackground:@selector(startRunning) withObject:nil];
     [self.session startRunning];
+    
+    // switch on torch mode - can't detect the pulse without it
+    if([self.camera isTorchModeSupported:AVCaptureTorchModeOn]) {
+        [self.camera lockForConfiguration:nil];
+        [self.camera setActiveVideoMinFrameDuration:CMTimeMake(1, 10)];
+        [self.camera setTorchMode:AVCaptureTorchModeOn];
+        // set the minimum acceptable frame rate to 10 fps
+        [self.camera unlockForConfiguration];
+    }
     
     // we're now sampling from the camera
     self.currentState=STATE_SAMPLING;
@@ -91,7 +97,7 @@
     [UIApplication sharedApplication].idleTimerDisabled = YES;
     
     // update our UI on a timer every 0.1 seconds
-    [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(update) userInfo:nil repeats:YES];
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(update) userInfo:nil repeats:YES];
     
     
 }
@@ -134,7 +140,7 @@
 }
 
 // r,g,b values are from 0 to 1 // h = [0,360], s = [0,1], v = [0,1]
-//	if s == 0, then h = -1 (undefined)
+//    if s == 0, then h = -1 (undefined)
 void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
     
     float min, max, delta;
@@ -170,6 +176,7 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
     // if we're paused don't do anything
     if(self.currentState==STATE_PAUSED) {
         // reset our frame counter
+        NSLog(@"paused");
         self.validFrameCounter=0;
         return;
     }
@@ -209,6 +216,7 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
         self.validFrameCounter++;
         // filter the hue value - the filter is a simple band pass filter that removes any DC component and any high frequency noise
         float filtered=[self processValue:h];
+        NSLog(@"capturing: %f", filtered);
         // have we collected enough frames for the filter to settle?
         if(self.validFrameCounter > MIN_FRAMES_FOR_FILTER_TO_SETTLE) {
             // add the new value to the pulse detector
@@ -232,6 +240,7 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
 
 -(float) update {
     
+    NSLog(@"HERE");
     // if we're paused then there's nothing to do
     if(self.currentState==STATE_PAUSED)
         return 0;
@@ -250,7 +259,7 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
         
         NSLog(@"Pulse: %f", self.pulse);
         
-        [timer invalidate];
+        [self.timer invalidate];
         [self stopCameraCapture];
         
         NSString *string = nil;
@@ -414,7 +423,9 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v ) {
     + ( -4.3832594900 * yv[8]) + (  3.2101976096 * yv[9]);
     
     return yv[10];
-} 
+}
 
 
 @end
+
+
