@@ -11,19 +11,19 @@
     <!-- android -->
     <platform name="android">
 
-        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+       <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.CAMERA"/>
             <uses-permission android:name="android.permission.FLASHLIGHT"
             android:permissionGroup="android.permission-group.HARDWARE_CONTROLS"
             android:protectionLevel="normal" />
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
             <uses-feature android:name="android.hardware.camera" />
             <uses-feature android:name="android.hardware.camera.flash" />
-
             <uses-permission android:name="android.permission.VIBRATE" />
-            <activity android:name="com.example.HeartRateMonitor"></activity>
         </config-file>
+         <config-file target="AndroidManifest.xml" parent="/manifest/application">
+               <activity android:name="com.example.HeartRateMonitor"></activity>
+         </config-file>
         <source-file src="src/android/main.xml" target-dir="res/layout"/>
         <source-file src="src/android/com/example/HeartRateMonitor.java" target-dir="src/com/example/" />
         <source-file src="src/android/com/example/ImageProcessing.java" target-dir="src/com/example/" />
